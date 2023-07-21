@@ -4,6 +4,64 @@
 
 `terraform-docs` is a free open-source utility to generate documentation from Terraform modules in various output formats. It can be ran in multiple ways, including within a GitHub Actions pipeline. When `terraform-docs` runs, it commits the output back into the repository. It utilizes the existing pipeline's authentication, which is usually the built-in `GITHUB_TOKEN`.
 
+<details>
+
+<summary>Basic Workflow Example With Issue</summary>
+
+```yaml
+   name: on pull request
+
+on: [pull_request]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    name: run terraform plan
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: terraform plan
+        uses: dflook/terraform-plan@a8d7e66e63aff79825a46e3374c4fd66ff9ce543
+        id: terraform-plan
+        with:
+          path: .
+          var_file: |
+            test/tfvars/ci.auto.tfvars
+
+  docs:
+    needs: plan
+    runs-on: ubuntu-latest
+    name: create readme
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: "terraform docs creation"
+        id: "terraform-docs"
+        uses: terraform-docs/gh-actions@cfde42f79b15256c71f4b79ae1d6acea0f689952
+        with:
+          working-dir: .
+          config-file: ./test/terraform-docs/.terraform-docs.yml
+          output-file: terraform-docs.md
+          output-method: replace
+          git-push: "true"
+        continue-on-error: false
+```
+
+</details>
+
 This functionality works well unless the user wants to see a Pull Request's status checks. If those same status checks are required, this functionality fully breaks it.
 
 This problem is due to the combination of factors:
