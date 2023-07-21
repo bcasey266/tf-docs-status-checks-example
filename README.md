@@ -112,6 +112,33 @@ The overall solution to this problem is to use a different token then `GITHUB_TO
   - `APP_ID` - This will be the App ID as noted above
   - `APP_SECRET` - This will be the entire PEM file that was downloaded upon creating a private key including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
 
+### Workflow Updates - Basic
+
+Within the PR Workflow, a few modifications are needed. For the full example, see [.github/workflows/on-pull-request.yml](.github/workflows/on-pull-request.yml).
+
+- Add the following block of code as the very first step within the job `docs`
+
+  ```yml
+  - name: Generate token
+    id: generate_token
+    uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+    with:
+      app_id: ${{ secrets.APP_ID }}
+      private_key: ${{ secrets.APP_SECRET }}
+  ```
+
+- Within the next step `actions/checkout@v3`, include the additional parameter `token: ${{ steps.generate_token.outputs.token }}`
+  ```yml
+  - uses: actions/checkout@v3
+    with:
+      ref: ${{ github.event.pull_request.head.ref }}
+      token: ${{ steps.generate_token.outputs.token }}
+  ```
+
+With these 2 additions, the next time `terraform-docs` makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart and evaluate the new commit and maintain the status checks for the PR.
+
+#### Potential Unwanted Behavior
+
 # Sources:
 
 [^1]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
