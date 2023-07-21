@@ -1,0 +1,52 @@
+name: on push
+
+on:
+  push:
+    branches-ignore:
+      - main
+    tags-ignore:
+      - "*"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job1"
+
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job2"
+
+  job3:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job3"
+
+  job4:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job4"
+
+  job5:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job5"
+
+  job6:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job6"
