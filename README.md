@@ -12,8 +12,16 @@ This problem is due to the combination of factors:
 2. `terraform-docs` performs an additional commit to update it's output file
 3. The `GITHUB_TOKEN` is not able to trigger additional workflows [^1]. This is the token that `terraform-docs` is likely using which prevents the status checks from reoccurring and invalidating the checks that just ran.
 
+&nbsp;
+
 | Broken Example                                          | Working Example                                          |
 | ------------------------------------------------------- | -------------------------------------------------------- |
 | ![Broken Example](./resources/images/BrokenExample.png) | ![Broken Example](./resources/images/WorkingExample.png) |
 
+&nbsp;
+
+&nbsp;
+
 [^1]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+
+## Solution
