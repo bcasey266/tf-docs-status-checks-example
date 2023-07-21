@@ -47,6 +47,13 @@ The overall solution to this problem is to use a different token then `GITHUB_TO
 - On the left bar, select `Install App` > `Install`
 - Provide Access to either all Repositories or specify a subset
 
+### Repo Configuration [^3]
+
+- Go to the repo where `terraform-docs` will be used
+- Create 2 secrets:
+  - `APP_ID` - This will be the App ID as noted above
+  - `APP_SECRET` - This will be the entire PEM file that was downloaded upon creating a private key including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
+
 # Sources:
 
 [^1]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
