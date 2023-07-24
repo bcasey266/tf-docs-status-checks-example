@@ -84,7 +84,7 @@ jobs:
 
 ### High Level
 
-The overall solution to this problem is the use of a different token than `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
+The solution to this problem is the use of a different token instead of the `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
 
 ### Creating a GitHub App [^3]
 
@@ -141,7 +141,7 @@ With these 2 additions, the next time **terraform-docs** makes a commit, it will
 
 #### Repeated Actions
 
-In this example, **terraform-docs** is the last step to run in the workflow. With this ordering, all jobs will be re-ran after **terraform-docs** makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating **terraform-docs** to an earlier step.
+In this example, **terraform-docs** is the last step to run in the workflow. With this ordering, all jobs will be re-ran after **terraform-docs** makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating **terraform-docs** to an earlier step and utilizing _concurrency_ with the involved workflows[^5].
 
 # Sources:
 
@@ -149,3 +149,4 @@ In this example, **terraform-docs** is the last step to run in the workflow. Wit
 [^2]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
 [^3]: https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app
 [^4]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions#example-workflow-authenticating-with-a-github-app
+[^5]: https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-concurrency-to-cancel-any-in-progress-job-or-run
