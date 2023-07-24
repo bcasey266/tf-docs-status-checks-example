@@ -137,7 +137,9 @@ Within the PR Workflow, a few modifications are needed. For the full example, se
 
 With these 2 additions, the next time `terraform-docs` makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart and evaluate the new commit and maintain the status checks for the PR.
 
-#### Potential Unwanted Behavior
+#### Repeated Actions
+
+In this example, `terraform-docs` is the last step to run in the workflow. With this ordering, all jobs will be re-ran after `terraform-docs` makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating `terraform-docs` to an earlier step.
 
 # Sources:
 
