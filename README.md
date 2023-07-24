@@ -16,7 +16,7 @@ The problem is due to a combination of factors:
 
 <details>
 
-<summary>Basic Workflow Example With Issue</summary>
+<summary>Workflow Example With Problem</summary>
 
 ```yaml
    name: on pull request
@@ -137,7 +137,7 @@ Within the PR Workflow, a few modifications are needed. For the full example, se
       token: ${{ steps.generate_token.outputs.token }}
   ```
 
-With these 2 additions, the next time **terraform-docs** makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart and evaluate the new commit and maintain the status checks for the PR.
+With these 2 additions, the next time **terraform-docs** makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart, evaluate the new commit, and maintain the status checks for the PR. An example PR is located in this repo here: #2
 
 #### Repeated Actions
 
