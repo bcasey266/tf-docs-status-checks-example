@@ -2,7 +2,7 @@
 
 ## Problem
 
-**terraform-docs**[^1] is a powerful open-source utility that can help you to keep your Terraform modules well-documented by automatically generating documentation from Terraform modules. The two most popular ways to run **terraform-docs** is locally from a command line or from within a CI/CD pipeline like **GitHub Actions**. When **terraform-docs** runs within a **GitHub Actions** pipeline, it commits the output back into the repository. **terraform-docs** does not have a built-in authentication method, so it utilizes the existing pipeline's authentication, which is usually the native `GITHUB_TOKEN`.
+**terraform-docs**[^1] is a powerful open-source utility that can help you keep your Terraform modules well-documented by automatically generating documentation. The two most popular ways to run **terraform-docs** is locally from a command line or from within a CI/CD pipeline like **GitHub Actions**. When **terraform-docs** runs within a **GitHub Actions** pipeline, it commits the output back into the repository. **terraform-docs** does not have a built-in authentication method, so it utilizes the existing pipeline's authentication, which is usually the native `GITHUB_TOKEN`.
 
 This functionality works well unless the workflow runs during a _Pull Request_ with other workflows. Each job within a workflow shows up in the _Pull Request_ as a _Status Check_. **terraform-docs** causes the _Status Checks_ from showing up after **terraform-docs** makes it's commit into the repository. This causes an inconvenience if the _Status Checks_ are optional, but if those _Status Checks_ are required, this behavior becomes incompatible.
 
