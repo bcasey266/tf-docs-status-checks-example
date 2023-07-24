@@ -2,7 +2,17 @@
 
 ## Problem
 
-`terraform-docs` is a free open-source utility to generate documentation from Terraform modules in various output formats. It can be ran in multiple ways, including within a GitHub Actions pipeline. When `terraform-docs` runs, it commits the output back into the repository. It utilizes the existing pipeline's authentication, which is usually the built-in `GITHUB_TOKEN`.
+**terraform-docs**[^1] is a powerful open-source utility that can help you to keep your Terraform modules well-documented by automatically generating documentation from Terraform modules. The two most popular ways to run **terraform-docs** is locally from a command line or from within a CI/CD pipeline like **GitHub Actions**. When **terraform-docs** runs within a **GitHub Actions** pipeline, it commits the output back into the repository. **terraform-docs** does not have a built-in authentication method, so it utilizes the existing pipeline's authentication, which is usually the native `GITHUB_TOKEN`.
+
+This functionality works well unless the workflow runs during a _Pull Request_ with other workflows. Each job within a workflow shows up in the _Pull Request_ as a _Status Check_. **terraform-docs** causes the _Status Checks_ from showing up after **terraform-docs** makes it's commit into the repository. This causes an inconvenience if the _Status Checks_ are optional, but if those _Status Checks_ are required, this behavior becomes incompatible.
+
+The problem is due to a combination of factors:
+
+1. The _Status Checks_ are started from the initial commit into the _Pull Request_
+2. **terraform-docs** performs an additional commit to update it's output/documentation file
+3. The `GITHUB_TOKEN` is not able to trigger additional workflows[^2]. This is the token that **terraform-docs** is likely using which prevents the status checks from reoccurring and invalidating the checks that just ran.
+
+&nbsp;
 
 <details>
 
@@ -62,14 +72,6 @@ jobs:
 
 </details>
 
-This functionality works well unless the user wants to see a Pull Request's status checks. If those same status checks are required, this functionality fully breaks it.
-
-This problem is due to the combination of factors:
-
-1. The Status Checks are started from the initial commit into the Pull Request
-2. `terraform-docs` performs an additional commit to update it's output file
-3. The `GITHUB_TOKEN` is not able to trigger additional workflows [^1]. This is the token that `terraform-docs` is likely using which prevents the status checks from reoccurring and invalidating the checks that just ran.
-
 &nbsp;
 
 | Broken Example                                          | Working Example                                          |
@@ -82,9 +84,9 @@ This problem is due to the combination of factors:
 
 ### High Level
 
-The overall solution to this problem is to use a different token then `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
+The overall solution to this problem is the use of a different token than `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
 
-### Creating a GitHub App [^2]
+### Creating a GitHub App [^3]
 
 - In the upper-right corner of any page on GitHub, click your profile photo.
 - Navigate to your account settings.
@@ -105,9 +107,9 @@ The overall solution to this problem is to use a different token then `GITHUB_TO
 - On the left bar, select `Install App` > `Install`
 - Provide Access to either all Repositories or specify a subset
 
-### Repo Configuration [^3]
+### Repo Configuration [^4]
 
-- Go to the repo where `terraform-docs` will be used
+- Go to the repo where **terraform-docs** will be used
 - Create 2 secrets:
   - `APP_ID` - This will be the App ID as noted above
   - `APP_SECRET` - This will be the entire PEM file that was downloaded upon creating a private key including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
@@ -135,14 +137,15 @@ Within the PR Workflow, a few modifications are needed. For the full example, se
       token: ${{ steps.generate_token.outputs.token }}
   ```
 
-With these 2 additions, the next time `terraform-docs` makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart and evaluate the new commit and maintain the status checks for the PR.
+With these 2 additions, the next time **terraform-docs** makes a commit, it will come from the new GitHub App. This will trigger the workflows to restart and evaluate the new commit and maintain the status checks for the PR.
 
 #### Repeated Actions
 
-In this example, `terraform-docs` is the last step to run in the workflow. With this ordering, all jobs will be re-ran after `terraform-docs` makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating `terraform-docs` to an earlier step.
+In this example, **terraform-docs** is the last step to run in the workflow. With this ordering, all jobs will be re-ran after **terraform-docs** makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating **terraform-docs** to an earlier step.
 
 # Sources:
 
-[^1]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
-[^2]: https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app
-[^3]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions#example-workflow-authenticating-with-a-github-app
+[^1]: https://terraform-docs.io/
+[^2]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+[^3]: https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app
+[^4]: https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions#example-workflow-authenticating-with-a-github-app
