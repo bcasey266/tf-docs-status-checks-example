@@ -4,6 +4,6 @@ resource "random_pet" "name" {
   length = var.length
 }
 
-resource "random_pet" "example2" {
+resource "random_pet" "terradoc" {
   length = var.length
 }
