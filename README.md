@@ -82,9 +82,13 @@ jobs:
 
 ## Solution
 
-### High Level
+### Overview
 
-The solution to this problem is the use of a different token instead of the `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized. The GitHub
+The solution to this problem is the use of a different token instead of the `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
+
+### GitHub App Visibility
+
+GitHub Apps have 2 visibility options, _Public_ and _Private_. If the GitHub App is set to private, it needs to be created in the same organization or personal account that it will be used. Private GitHub Apps are unable to be used across different organizations/accounts. Public GitHub Apps can be installed and utilized in any location including organizations or accounts that are not controlled by you.
 
 ### Creating a GitHub App [^3]
 
@@ -101,6 +105,8 @@ The solution to this problem is the use of a different token instead of the `GIT
 - Under "Homepage URL", type the URL of the organization or user that owns the app.
 - Under the "Webhook" section, uncheck "Active"
 - Under Permissions, Provide "Read & Write" to `Contents` under `Repository Permissions`
+- For "Where can this GitHub App be installed?", select the preferred option based on information in the previous section _GitHub App Visibility_
+  - This option can be adjusted later
 - Click `Create GitHub App`
 - Note the `App ID`
 - Scroll down and select the button `Generate a private key`
