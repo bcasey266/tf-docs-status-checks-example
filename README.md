@@ -2,14 +2,14 @@
 
 ## Problem
 
-**terraform-docs**[^1] is a powerful open-source utility that can help you keep your Terraform modules well-documented by automatically generating documentation. The two most popular ways to run **terraform-docs** is locally from a command line or from within a CI/CD pipeline like **GitHub Actions**. When **terraform-docs** runs within a **GitHub Actions** pipeline, it commits the output back into the repository. **terraform-docs** does not have a built-in authentication method, so it utilizes the existing pipeline's authentication, which is usually the native `GITHUB_TOKEN`.
+**terraform-docs**[^1] is a powerful open-source utility that can help you keep your Terraform modules well-documented by automatically generating documentation. The two most popular ways to run **terraform-docs** are locally from a command line or from within a CI/CD pipeline like **GitHub Actions**. When **terraform-docs** runs within a **GitHub Actions** pipeline, it commits the output back into the repository. **terraform-docs** does not have a built-in authentication method, so it utilizes the existing pipeline's authentication, which is usually the native `GITHUB_TOKEN`.
 
-This functionality works well unless the workflow runs during a _Pull Request_ with other workflows. Each job within a workflow shows up in the _Pull Request_ as a _Status Check_. **terraform-docs** causes these _Status Checks_ to stop showing up after **terraform-docs** makes it's commit into the repository. This causes an inconvenience if the _Status Checks_ are optional, but if those _Status Checks_ are required, this behavior becomes incompatible.
+This functionality works well unless the workflow runs during a _Pull Request_ with other workflows. Each job within a workflow shows up in the _Pull Request_ as a _Status Check_. **terraform-docs** causes these _Status Checks_ to stop showing up after **terraform-docs** makes its commit into the repository. This causes an inconvenience if the _Status Checks_ are optional, but if those _Status Checks_ are required, this behavior becomes incompatible.
 
 The problem is due to a combination of factors:
 
 1. The _Status Checks_ are started from the initial commit into the _Pull Request_
-2. **terraform-docs** performs an additional commit to update it's output/documentation file
+2. **terraform-docs** performs an additional commit to update its output/documentation file
 3. The `GITHUB_TOKEN` is not able to trigger additional workflows[^2]. This is the token that **terraform-docs** is likely using which prevents the status checks from reoccurring and invalidating the checks that just ran.
 
 &nbsp;
@@ -82,9 +82,13 @@ jobs:
 
 ## Solution
 
-### High Level
+### Overview
 
 The solution to this problem is the use of a different token instead of the `GITHUB_TOKEN`. However, utilizing Personal Access Tokens (PAT) is not a secure method and should be avoided when possible. Instead, a GitHub App should be created and utilized.
+
+### GitHub App Visibility
+
+GitHub Apps have 2 visibility options, _Public_ and _Private_. If the GitHub App is set to private, it needs to be created in the same organization or personal account that it will be used. Private GitHub Apps are unable to be used across different organizations/accounts. Public GitHub Apps can be installed and utilized in any location including organizations or accounts that are not controlled by you.
 
 ### Creating a GitHub App [^3]
 
@@ -92,15 +96,17 @@ The solution to this problem is the use of a different token instead of the `GIT
 - Navigate to your account settings.
   - For a GitHub App owned by a personal account, click Settings.
   - For a GitHub App owned by an organization:
-    - Click Your organizations.
+    - Click Your Organizations.
     - To the right of the organization, click Settings.
 - In the left sidebar, click Developer settings.
 - In the left sidebar, click GitHub Apps.
 - Click New GitHub App.
-- Under "GitHub App name", enter a name for your app. The name must be unique across GitHub. You cannot use same name as an existing GitHub account, unless it is your own user or organization name.
-- Under "Homepage URL", type URL of the organization or user that owns the app.
+- Under "GitHub App name", enter a name for your app. The name must be unique across GitHub. You cannot use the same name as an existing GitHub account unless it is your own user or organization name.
+- Under "Homepage URL", type the URL of the organization or user that owns the app.
 - Under the "Webhook" section, uncheck "Active"
 - Under Permissions, Provide "Read & Write" to `Contents` under `Repository Permissions`
+- For "Where can this GitHub App be installed?", select the preferred option based on information in the previous section _GitHub App Visibility_
+  - This option can be adjusted later
 - Click `Create GitHub App`
 - Note the `App ID`
 - Scroll down and select the button `Generate a private key`
@@ -141,7 +147,7 @@ With these 2 additions, the next time **terraform-docs** makes a commit, it will
 
 #### Repeated Actions
 
-In this example, **terraform-docs** is the last step to run in the workflow. With this ordering, all jobs will be re-ran after **terraform-docs** makes it's commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being ran during these previous steps. This is a trade-off with this solution, but can be worked around by relocating **terraform-docs** to an earlier step and utilizing _concurrency_ with the involved workflows[^5].
+In this example, **terraform-docs** is the last step to run in the workflow. With this ordering, all jobs will be re-run after **terraform-docs** makes its commit, including the `on-push` and `on-pull-request` workflows. This behavior may not be desired depending on the tasks being run during these previous steps. This is a trade-off with this solution but can be worked around by relocating **terraform-docs** to an earlier step and utilizing _concurrency_ with the involved workflows[^5].
 
 # Sources:
 
